@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: expense-manager
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn expense_manager.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: expense_manager.settings
+      - key: SECRET_KEY
+        value: "your-secret-key-here"
+      # Add your database credentials below (from Render's PostgreSQL dashboard)
+      - key: DATABASE_URL
+        value: "your-database-url-here"
