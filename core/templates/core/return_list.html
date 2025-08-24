@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Returns{% endblock %}
+{% block content %}
+...existing code...
+<!-- Product dropdown will be populated via AJAX -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function() {
+	$('#returnsTable').DataTable({
+		responsive: true,
+		pageLength: 25,
+		order: [[0, 'desc']]
+	});
+
+	function loadProductsForVendor(vendorId) {
+		var $dropdown = $('#returnProduct');
+		$dropdown.empty();
+		if (!vendorId) return;
+		$.ajax({
+			url: '/ajax/products/by_vendor/' + vendorId + '/',
+			method: 'GET',
+			dataType: 'json',
+			success: function(data) {
+				data.products.forEach(function(prod) {
+					$dropdown.append('<option value="' + prod.id + '" data-price="' + prod.price + '">' + prod.name + ' (' + prod.price + ')</option>');
+				});
+				updateReturnAmount();
+			}
+		});
+	}
+
+	function updateReturnAmount() {
+		var price = parseFloat($('#returnProduct option:selected').data('price')) || 0;
+		var qty = parseInt($('#returnQuantity').val()) || 0;
+		var amt = price * qty;
+		$('#returnAmount').val(amt ? amt.toFixed(2) : '');
+	}
+
+	$('#returnProduct, #returnQuantity').on('change input', updateReturnAmount);
+	// Load products for selected vendor via AJAX
+	$('#returnVendor').on('change', function() {
+		var vendorId = $(this).val();
+		loadProductsForVendor(vendorId);
+	});
+	// Initial build when modal is shown
+	$('#addReturnModal').on('shown.bs.modal', function() {
+		var vendorId = $('#returnVendor').val();
+		loadProductsForVendor(vendorId);
+	});
+});
+</script>
+{% endblock %}
+	*** End Patch

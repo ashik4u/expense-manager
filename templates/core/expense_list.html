@@ -1,0 +1,306 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2 align-items-center">
+            <div class="col-sm-6 d-flex align-items-center">
+                <i class="fas fa-file-invoice-dollar fa-2x text-info mr-2"></i>
+                <div>
+                    <h1 class="m-0">Expenses <small class="text-muted" style="font-size:1rem;">List</small></h1>
+                </div>
+            </div>
+            <div class="col-sm-6 text-right">
+                <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#addExpenseModal">
+                    <i class="fas fa-file-invoice-dollar"></i><span class="d-none d-sm-inline"> Add Expense</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <table id="expensesTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Amount</th>
+                            <th>Delivery Charge</th>
+                            <th>Memo</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td><a href="{% url 'expense_detail' expense.id %}" class="text-info">{{ expense.date|date:'d-M-y' }}</a></td>
+                            <td>{{ expense.vendor.name }}</td>
+                            <td>{{ expense.amount|floatformat:2 }}</td>
+                            <td>{{ expense.delivery_charge|floatformat:2 }}</td>
+                            <td>
+                                {% if expense.memo %}
+                                    <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#memoModal" data-url="{{ expense.memo.url }}">
+                                        <i class="fas fa-file"></i>
+                                    </button>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" title="View" data-toggle="modal" data-target="#viewExpenseModal{{ expense.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm" title="Edit" data-toggle="modal" data-target="#editExpenseModal{{ expense.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center text-muted">No expenses found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+        <!-- Add Expense Modal -->
+        {% comment %} Render product options for JS use {% endcomment %}
+        <select id="productOptionsTemplate" style="display:none;">
+            <option value="">Select Product</option>
+            {% for p in products %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="modal fade" id="addExpenseModal" tabindex="-1" role="dialog" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="addExpenseModalLabel">Add Expense</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addExpenseForm" method="post" enctype="multipart/form-data" action="{% url 'expense_add' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="vendor">Vendor</label>
+                                <select name="vendor" id="vendor" class="form-control" required>
+                                    {% for vendor in vendors %}
+                                    <option value="{{ vendor.id }}" {% if request.GET.vendor|default:'' == vendor.id|stringformat:'s' %}selected{% endif %}>{{ vendor.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="date">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date|default:'' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="amount">Amount</label>
+                                <input type="number" step="0.01" class="form-control" id="amount" name="amount" value="{{ request.GET.amount|default:'' }}" readonly>
+                                <small class="form-text text-muted">Auto-calculated from products and quantity.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="delivery_charge">Delivery Charge</label>
+                                <input type="number" step="0.01" class="form-control" id="delivery_charge" name="delivery_charge" value="{{ request.GET.delivery_charge|default:'' }}">
+                                <small class="form-text text-muted">Optional</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Products & Quantity</label>
+                                <table class="table table-bordered table-sm" id="addProductsTable">
+                                    <thead>
+                                        <tr><th>Product</th><th>Quantity</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select name="product_1" class="form-control form-control-sm">
+                                                    <option value="">Select Product</option>
+                                                    {% for p in products %}
+                                                    <option value="{{ p.id }}">{{ p.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" name="quantity_1" class="form-control form-control-sm" value="">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-info btn-sm" id="addProductRowAdd"><i class="fas fa-plus"></i> Add Another Product</button>
+                                <label for="memo">Memo</label>
+                                <input type="file" class="form-control-file" id="memo" name="memo">
+                            </div>
+                            <button type="submit" class="btn btn-warning">Save Expense</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View/Edit Expense Modals -->
+        {% for expense in expenses %}
+        <div class="modal fade" id="viewExpenseModal{{ expense.id }}" tabindex="-1" role="dialog" aria-labelledby="viewExpenseModalLabel{{ expense.id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title" id="viewExpenseModalLabel{{ expense.id }}">Expense Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>ID:</strong> {{ expense.id }}</p>
+                        <p><strong>Date:</strong> {{ expense.date|date:'d-M-y' }}</p>
+                        <p><strong>Vendor:</strong> {{ expense.vendor.name }}</p>
+                        <p><strong>Amount:</strong> {{ expense.amount|floatformat:2 }}</p>
+                        <p><strong>Delivery Charge:</strong> {{ expense.delivery_charge|floatformat:2 }}</p>
+                        <p><strong>Memo:</strong> {% if expense.memo %}<a href="{{ expense.memo.url }}" target="_blank">View Memo</a>{% else %}-{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="editExpenseModal{{ expense.id }}" tabindex="-1" role="dialog" aria-labelledby="editExpenseModalLabel{{ expense.id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning">
+                        <h5 class="modal-title" id="editExpenseModalLabel{{ expense.id }}">Edit Expense</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- You can replace this with your actual edit expense form -->
+                        <form method="post" enctype="multipart/form-data" action="{% url 'expense_edit' expense.id %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="vendor{{ expense.id }}">Vendor</label>
+                                <select name="vendor" id="vendor{{ expense.id }}" class="form-control">
+                                    {% for vendor in vendors %}
+                                    <option value="{{ vendor.id }}" {% if vendor == expense.vendor %}selected{% endif %}>{{ vendor.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="date{{ expense.id }}">Date</label>
+                                <input type="date" name="date" id="date{{ expense.id }}" class="form-control" value="{{ expense.date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="amount{{ expense.id }}">Amount</label>
+                                <input type="number" step="0.01" name="amount" id="amount{{ expense.id }}" class="form-control" value="{{ expense.amount }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="delivery_charge{{ expense.id }}">Delivery Charge</label>
+                                <input type="number" step="0.01" name="delivery_charge" id="delivery_charge{{ expense.id }}" class="form-control" value="{{ expense.delivery_charge }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Products & Quantity</label>
+                                <table class="table table-bordered table-sm" id="productsTable{{ expense.id }}">
+                                    <thead>
+                                        <tr><th>Product</th><th>Quantity</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ep in expense.expense_products.all %}
+                                        <tr>
+                                            <td>
+                                                <select name="product_{{ forloop.counter }}" class="form-control form-control-sm">
+                                                    <option value="">Select Product</option>
+                                                    {% for p in products %}
+                                                    <option value="{{ p.id }}" {% if p.id == ep.product.id %}selected{% endif %}>{{ p.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" min="0" name="quantity_{{ forloop.counter }}" class="form-control form-control-sm" value="{{ ep.quantity }}">
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="btn btn-info btn-sm addProductRow" data-table-id="productsTable{{ expense.id }}"><i class="fas fa-plus"></i> Add Another Product</button>
+                                <label for="memo{{ expense.id }}">Memo</label>
+                                <input type="file" name="memo" id="memo{{ expense.id }}" class="form-control-file">
+                                {% if expense.memo %}
+                                    <a href="{{ expense.memo.url }}" target="_blank" class="btn btn-xs btn-info mt-2"><i class="fas fa-file"></i> View Current Memo</a>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-warning mr-2"><i class="fas fa-save"></i> Save Changes</button>
+                                </form>
+                                <form method="post" action="{% url 'expense_delete' expense.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this expense?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete Expense</button>
+                                </form>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+</section>
+<!-- DataTables and jQuery are loaded via base.html -->
+<script>
+$(function() {
+    $('#expensesTable').DataTable({
+        responsive: true,
+        pageLength: 25,
+        order: [[0, 'desc']]
+    });
+    // Add Another Product button for each edit modal
+    $('.addProductRow').on('click', function () {
+        var tableId = $(this).data('table-id');
+        var $table = $('#' + tableId);
+        var rowCount = $table.find('tbody tr').length + 1;
+        var productOptions = $('#productOptionsTemplate').html();
+        var newRow = '<tr>' +
+            '<td><select name="product_' + rowCount + '" class="form-control form-control-sm">' + productOptions + '</select></td>' +
+            '<td><input type="number" min="0" name="quantity_' + rowCount + '" class="form-control form-control-sm" value=""></td>' +
+            '</tr>';
+        $table.find('tbody').append(newRow);
+    });
+    // Add Another Product button for Add Expense modal
+    $('#addProductRowAdd').on('click', function () {
+        var $table = $('#addProductsTable');
+        var rowCount = $table.find('tbody tr').length + 1;
+        var productOptions = $('#productOptionsTemplate').html();
+        var newRow = '<tr>' +
+            '<td><select name="product_' + rowCount + '" class="form-control form-control-sm">' + productOptions + '</select></td>' +
+            '<td><input type="number" min="0" name="quantity_' + rowCount + '" class="form-control form-control-sm" value=""></td>' +
+            '</tr>';
+        $table.find('tbody').append(newRow);
+        updateAmount();
+    });
+    // Set today's date by default in Add Expense modal
+    $('#addExpenseModal').on('show.bs.modal', function () {
+        // Always set to current system date when modal opens
+        var now = new Date();
+        var today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        $(this).find('input[name="date"]').val(today);
+        console.log('Modal opened, date set to:', today);
+        updateAmount();
+    });
+    // Auto-calculate amount from products and quantity
+    function updateAmount() {
+        var total = 0;
+        $('#addProductsTable tbody tr').each(function() {
+            var productId = $(this).find('select').val();
+            var qty = parseFloat($(this).find('input[type="number"]').val()) || 0;
+            if (productId && qty > 0) {
+                var price = parseFloat($("#productOptionsTemplate option[value='" + productId + "']").text().split(' - ')[1]) || 0;
+                if (!price) {
+                    // fallback: try to get price from data attribute if you add it
+                    price = parseFloat($(this).find('select option:selected').data('price')) || 0;
+                }
+                total += price * qty;
+            }
+        });
+        $('#amount').val(total.toFixed(2));
+    }
+    // Listen for changes in product or quantity fields
+    $('#addProductsTable').on('change', 'select, input[type="number"]', updateAmount);
+});
+</script>
+{% endblock %}

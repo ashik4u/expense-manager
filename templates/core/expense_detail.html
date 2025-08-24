@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Expense Detail</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="{% url 'dashboard' %}" class="nav-link">Home</a>
+            </li>
+        </ul>
+    </nav>
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <a href="{% url 'dashboard' %}" class="brand-link">
+            <span class="brand-text font-weight-light">Expense Manager</span>
+        </a>
+        <div class="sidebar">
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+                    <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link"><i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p></a></li>
+                    <li class="nav-item"><a href="{% url 'vendor_list' %}" class="nav-link"><i class="nav-icon fas fa-users"></i><p>Vendors</p></a></li>
+                    <li class="nav-item"><a href="{% url 'product_list' %}" class="nav-link"><i class="nav-icon fas fa-box"></i><p>Products</p></a></li>
+                    <li class="nav-item"><a href="{% url 'expense_list' %}" class="nav-link active"><i class="nav-icon fas fa-file-invoice-dollar"></i><p>Expenses</p></a></li>
+                    <li class="nav-item"><a href="{% url 'payment_list' %}" class="nav-link"><i class="nav-icon fas fa-money-check-alt"></i><p>Payments</p></a></li>
+                 </ul>
+            </nav>
+        </div>
+    </aside>
+    <div class="content-wrapper">
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card mt-4">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">Expense #{{ expense.id }}</h3>
+                        <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#editExpenseModal"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Date:</strong> {{ expense.date }}</li>
+                            <li class="list-group-item"><strong>Vendor:</strong> {{ expense.vendor.name }}</li>
+                            <li class="list-group-item"><strong>Amount:</strong> {{ expense.amount }}</li>
+                            <li class="list-group-item"><strong>Delivery Charge:</strong> {{ expense.delivery_charge }}</li>
+                            <li class="list-group-item"><strong>Memo:</strong>
+                                {% if expense.memo %}
+                                    <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#memoModal" data-url="{{ expense.memo.url }}">
+                                        <i class="fas fa-file"></i> View Memo
+                                    </button>
+                                {% else %}
+                                    <span class="text-muted">No Memo</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                        <h5 class="mt-4">Products</h5>
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr><th>Product</th><th>Quantity</th><th>Price</th><th>Subtotal</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for ep in expense_products %}
+                                <tr>
+                                    <td>{{ ep.name }}</td>
+                                    <td>{{ ep.quantity }}</td>
+                                    <td>{{ ep.price }}</td>
+                                    <td>{{ ep.subtotal|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4">No products found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                                                <!-- Edit Expense Modal -->
+                                                <div class="modal fade" id="editExpenseModal" tabindex="-1" role="dialog" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <form method="post" enctype="multipart/form-data" action="{% url 'expense_edit' expense.id %}">
+                                                                {% csrf_token %}
+                                                                <div class="modal-header bg-warning">
+                                                                    <h5 class="modal-title" id="editExpenseModalLabel">Edit Expense #{{ expense.id }}</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="form-group">
+                                                                        <label for="vendor">Vendor</label>
+                                                                        <select name="vendor" id="vendor" class="form-control">
+                                                                            {% for vendor in vendors %}
+                                                                            <option value="{{ vendor.id }}" {% if vendor == expense.vendor %}selected{% endif %}>{{ vendor.name }}</option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="date">Date</label>
+                                                                        <input type="date" name="date" id="date" class="form-control" value="{{ expense.date|date:'Y-m-d' }}">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="amount">Amount</label>
+                                                                        <input type="number" step="0.01" name="amount" id="amount" class="form-control" value="{{ expense.amount }}">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="delivery_charge">Delivery Charge</label>
+                                                                        <input type="number" step="0.01" name="delivery_charge" id="delivery_charge" class="form-control" value="{{ expense.delivery_charge }}">
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label>Products & Quantity</label>
+                                                                        <table class="table table-bordered table-sm" id="productsTable">
+                                                                            <thead>
+                                                                                <tr><th>Product</th><th>Quantity</th></tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                {% for product in products %}
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        <select name="product_{{ forloop.counter }}" class="form-control form-control-sm">
+                                                                                            <option value="">Select Product</option>
+                                                                                            {% for p in products %}
+                                                                                            <option value="{{ p.id }}" {% if p.id == product.id %}selected{% endif %}>{{ p.name }}</option>
+                                                                                            {% endfor %}
+                                                                                        </select>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <input type="number" min="0" name="quantity_{{ forloop.counter }}" class="form-control form-control-sm" value="{% for ep in expense.expense_products.all %}{% if ep.product.id == product.id %}{{ ep.quantity }}{% endif %}{% endfor %}">
+                                                                                    </td>
+                                                                                </tr>
+                                                                                {% endfor %}
+                                                                            </tbody>
+                                                                        </table>
+                                                                        <button type="button" class="btn btn-info btn-sm" id="addProductRow"><i class="fas fa-plus"></i> Add Another Product</button>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="memo">Memo</label>
+                                                                        <input type="file" name="memo" id="memo" class="form-control-file">
+                                                                        {% if expense.memo %}
+                                                                            <button type="button" class="btn btn-xs btn-info mt-2" data-toggle="modal" data-target="#memoModal" data-url="{{ expense.memo.url }}"><i class="fas fa-file"></i></button>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="submit" class="btn btn-warning"><i class="fas fa-save"></i> Save Changes</button>
+                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+        <!-- Memo Modal -->
+        <div class="modal fade" id="memoModal" tabindex="-1" role="dialog" aria-labelledby="memoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="memoModalLabel">Memo Preview</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="memoModalBody">
+                        <div class="text-center text-muted">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+<script>
+    // Add Another Product button
+    $('#addProductRow').on('click', function () {
+        var rowCount = $('#productsTable tbody tr').length + 1;
+        var productOptions = '';
+        {% for p in products %}
+            productOptions += '<option value="{{ p.id }}">{{ p.name }}</option>';
+        {% endfor %}
+        var newRow = '<tr>' +
+            '<td><select name="product_' + rowCount + '" class="form-control form-control-sm"><option value="">Select Product</option>' + productOptions + '</select></td>' +
+            '<td><input type="number" min="0" name="quantity_' + rowCount + '" class="form-control form-control-sm" value=""></td>' +
+            '</tr>';
+        $('#productsTable tbody').append(newRow);
+    });
+$(function () {
+    // Memo modal preview
+    $('#memoModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var url = button.data('url');
+        var modal = $(this);
+        var ext = url.split('.').pop().toLowerCase();
+        var body = modal.find('#memoModalBody');
+        if (url && ['jpg','jpeg','png','gif','bmp','webp'].includes(ext)) {
+            body.html('<img src="' + url + '" class="img-fluid" alt="Memo Image">');
+        } else if (url && ['pdf'].includes(ext)) {
+            body.html('<iframe src="' + url + '" style="width:100%;height:500px;" frameborder="0"></iframe>');
+        } else if (url) {
+            body.html('<a href="' + url + '" target="_blank" class="btn btn-primary">Download Memo</a>');
+        } else {
+            body.html('<div class="text-center text-muted">No memo file found.</div>');
+        }
+    });
+    $('#memoModal').on('hidden.bs.modal', function () {
+        $(this).find('#memoModalBody').html('<div class="text-center text-muted">Loading...</div>');
+    });
+});
+</script>
+</body>
+</html>

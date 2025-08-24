@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+	<h1 class="display-5 mb-4">Expense Manager Dashboard</h1>
+	<div class="row g-4 mb-4">
+		{% for vendor in vendors %}
+		<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+			<div class="small-box bg-info">
+				<div class="inner">
+					<h3>{{ vendor.balance }}</h3>
+					<p>{{ vendor.name }}</p>
+				</div>
+				<div class="icon">
+					<i class="fas fa-user"></i>
+				</div>
+				<a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+			</div>
+		</div>
+		{% endfor %}
+		<div class="col-md-3">
+			<div class="card text-center shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">Products</h5>
+					<p class="card-text h2">{{ product_count }}</p>
+					<span class="badge bg-info">In Stock</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card text-center shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">Expenses</h5>
+					<p class="card-text h2">{{ expense_count }}</p>
+					<span class="badge bg-warning">Tracked</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card text-center shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">Payments</h5>
+					<p class="card-text h2">{{ payment_count }}</p>
+					<span class="badge bg-primary">Completed</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row g-4 mb-4">
+		<div class="col-md-3">
+			<div class="card text-center shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">Returns</h5>
+					<p class="card-text h2">{{ return_count }}</p>
+					<span class="badge bg-danger">Processed</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="card text-center shadow-sm">
+				<div class="card-body">
+					<h5 class="card-title">Adjustments</h5>
+					<p class="card-text h2">{{ adjustment_count }}</p>
+					<span class="badge bg-secondary">Updated</span>
+				</div>
+			</div>
+		</div>
+		<!-- Add more cards for analytics, revenue, etc. as needed -->
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Monthly Overview</h5>
+					<p class="card-text">Your sales performance is <span class="text-success">45%</span> better compared to last month.</p>
+					<a href="#" class="btn btn-outline-success">View Sales</a>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Transactions</h5>
+					<p class="card-text">Total Growth: <span class="text-info">48.5%</span> this month</p>
+					<a href="#" class="btn btn-outline-info">View Transactions</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
