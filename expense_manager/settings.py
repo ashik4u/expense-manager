@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-ffn^_kic^2(^ixg@889ggm!o-s%ulnk3_6hhdn+zuwvw$l5(_j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['expense-manager-3dls.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
