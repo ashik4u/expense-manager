@@ -1,92 +1,97 @@
 {% extends 'base.html' %}
+{% block extra_head %}
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+{% endblock %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="container py-4">
-	<h1 class="display-5 mb-4">Expense Manager Dashboard</h1>
-	<div class="row g-4 mb-4">
-		{% for vendor in vendors %}
-		<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-			<div class="small-box bg-info">
-				<div class="inner">
-					<h3>{{ vendor.balance }}</h3>
-					<p>{{ vendor.name }}</p>
-				</div>
-				<div class="icon">
-					<i class="fas fa-user"></i>
-				</div>
-				<a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-			</div>
-		</div>
-		{% endfor %}
-		<div class="col-md-3">
-			<div class="card text-center shadow-sm">
-				<div class="card-body">
-					<h5 class="card-title">Products</h5>
-					<p class="card-text h2">{{ product_count }}</p>
-					<span class="badge bg-info">In Stock</span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card text-center shadow-sm">
-				<div class="card-body">
-					<h5 class="card-title">Expenses</h5>
-					<p class="card-text h2">{{ expense_count }}</p>
-					<span class="badge bg-warning">Tracked</span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card text-center shadow-sm">
-				<div class="card-body">
-					<h5 class="card-title">Payments</h5>
-					<p class="card-text h2">{{ payment_count }}</p>
-					<span class="badge bg-primary">Completed</span>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="row g-4 mb-4">
-		<div class="col-md-3">
-			<div class="card text-center shadow-sm">
-				<div class="card-body">
-					<h5 class="card-title">Returns</h5>
-					<p class="card-text h2">{{ return_count }}</p>
-					<span class="badge bg-danger">Processed</span>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-3">
-			<div class="card text-center shadow-sm">
-				<div class="card-body">
-					<h5 class="card-title">Adjustments</h5>
-					<p class="card-text h2">{{ adjustment_count }}</p>
-					<span class="badge bg-secondary">Updated</span>
-				</div>
-			</div>
-		</div>
-		<!-- Add more cards for analytics, revenue, etc. as needed -->
-	</div>
-	<hr>
-	<div class="row">
-		<div class="col-md-6">
-			<div class="card">
-				<div class="card-body">
-					<h5 class="card-title">Monthly Overview</h5>
-					<p class="card-text">Your sales performance is <span class="text-success">45%</span> better compared to last month.</p>
-					<a href="#" class="btn btn-outline-success">View Sales</a>
-				</div>
-			</div>
-		</div>
-		<div class="col-md-6">
-			<div class="card">
-				<div class="card-body">
-					<h5 class="card-title">Transactions</h5>
-					<p class="card-text">Total Growth: <span class="text-info">48.5%</span> this month</p>
-					<a href="#" class="btn btn-outline-info">View Transactions</a>
-				</div>
+<div class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-12">
+				<h1 class="m-0 display-5">Expense Manager Dashboard</h1>
 			</div>
 		</div>
 	</div>
 </div>
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-info h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ vendor_count }}</h2>
+						<p class="h5">Vendors</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-users"></i></div>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-success h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ product_count }}</h2>
+						<p class="h5">Products</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-box"></i></div>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-warning h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ expense_count }}</h2>
+						<p class="h5">Expenses</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-file-invoice-dollar"></i></div>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-danger h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ payment_count }}</h2>
+						<p class="h5">Payments</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-money-check-alt"></i></div>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-secondary h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ return_count }}</h2>
+						<p class="h5">Returns</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-undo"></i></div>
+				</div>
+			</div>
+			<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+				<div class="small-box bg-primary h-100 p-3" style="min-height:140px;">
+					<div class="inner">
+						<h2 class="display-4">{{ adjustment_count }}</h2>
+						<p class="h5">Adjustments</p>
+					</div>
+					<div class="icon" style="font-size:2.5rem;"><i class="fas fa-adjust"></i></div>
+				</div>
+			</div>
+		</div>
+		<div class="card mt-4">
+			<div class="card-header"><h3 class="card-title">Vendor Balances</h3></div>
+			<div class="card-body">
+				<div class="row">
+				{% for vendor in vendors %}
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+					<div class="small-box {% cycle 'bg-info' 'bg-success' 'bg-warning' 'bg-danger' 'bg-primary' 'bg-secondary' %} h-100">
+						<div class="inner">
+							<h3>{{ vendor.balance }}</h3>
+							<p>{{ vendor.name }}</p>
+						</div>
+						<div class="icon">
+							<i class="fas fa-user"></i>
+						</div>
+						<a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+					</div>
+				</div>
+				{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
 {% endblock %}
