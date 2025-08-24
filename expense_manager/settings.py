@@ -39,7 +39,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
     'colorfield',
     'admin_interface',
     'django.contrib.admin',
@@ -135,17 +134,11 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-
-# Jazzmin sidebar model order configuration
-JAZZMIN_SETTINGS = {
-    "order_with_respect_to": [
-        "core.Vendor",
-        "core.Expense",
-        "core.Payment",
-        "core.Product",
-        "core.Return",
-        "core.Adjustment",
-    ],
-}
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
