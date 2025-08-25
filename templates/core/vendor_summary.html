@@ -212,6 +212,7 @@
                                             <form method="post" action="{% url 'vendor_summary' vendor.name %}">
                                                 {% csrf_token %}
                                                 <input type="hidden" name="vendor" value="{{ vendor.id }}">
+                                                <input type="hidden" name="adjustment" value="1">
                                                 <div class="modal-body">
                                                     <div class="form-group">
                                                         <label for="adjustmentDate">Date</label>
@@ -399,6 +400,21 @@
                                                 </td>
                                             </tr>
                                             {% endfor %}
+                                        {% endfor %}
+                                        {% for payment in payments %}
+                                            <tr>
+                                                <td>{{ payment.date|date:'d-M-y' }}</td>
+                                                <td>Payment</td>
+                                                <td>{{ payment.method }}</td>
+                                                <td>{{ payment.amount }}</td>
+                                                <td>
+                                                    {% if payment.memo %}
+                                                        <a href="{{ payment.memo.url }}" target="_blank" class="btn btn-xs btn-info" title="View Memo"><i class="fas fa-file"></i></a>
+                                                    {% else %}
+                                                        <span class="text-muted">-</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
                                         {% endfor %}
                                         {% for ret in returns %}
                                             <tr>

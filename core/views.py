@@ -286,6 +286,32 @@ def vendor_summary(request, name):
 			}
 			return render(request, 'core/vendor_summary.html', context)
 
+	# Handle adjustment creation from modal
+	if request.method == 'POST' and 'amount' in request.POST and 'note' in request.POST and 'adjustment' in request.POST:
+		from .models import Adjustment
+		date = request.POST.get('date')
+		amount = request.POST.get('amount')
+		note = request.POST.get('note')
+		errors = []
+		if not date:
+			errors.append('Date is required.')
+		if not amount:
+			errors.append('Amount is required.')
+		if not errors:
+			Adjustment.objects.create(vendor=vendor, date=date, amount=amount, note=note)
+			return redirect('vendor_summary', name=vendor.name)
+		else:
+			context = {
+				'vendor': vendor,
+				'expenses': expenses,
+				'payments': payments,
+				'returns': returns,
+				'adjustments': adjustments,
+				'products': products,
+				'add_errors': errors,
+			}
+			return render(request, 'core/vendor_summary.html', context)
+
 	# Find latest transaction
 	latest = None
 	latest_type = None
@@ -638,6 +664,32 @@ def vendor_summary(request, name):
 			errors.append('Method is required.')
 		if not errors:
 			Payment.objects.create(vendor=vendor, date=date, amount=amount, method=method, memo=memo if memo else None)
+			return redirect('vendor_summary', name=vendor.name)
+		else:
+			context = {
+				'vendor': vendor,
+				'expenses': expenses,
+				'payments': payments,
+				'returns': returns,
+				'adjustments': adjustments,
+				'products': products,
+				'add_errors': errors,
+			}
+			return render(request, 'core/vendor_summary.html', context)
+
+	# Handle adjustment creation from modal
+	if request.method == 'POST' and 'amount' in request.POST and 'note' in request.POST and 'adjustment' in request.POST:
+		from .models import Adjustment
+		date = request.POST.get('date')
+		amount = request.POST.get('amount')
+		note = request.POST.get('note')
+		errors = []
+		if not date:
+			errors.append('Date is required.')
+		if not amount:
+			errors.append('Amount is required.')
+		if not errors:
+			Adjustment.objects.create(vendor=vendor, date=date, amount=amount, note=note)
 			return redirect('vendor_summary', name=vendor.name)
 		else:
 			context = {
