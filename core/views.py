@@ -1,6 +1,7 @@
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
+from django.shortcuts import render
 
 def payment_add(request):
 	from .models import Payment, Vendor
@@ -739,3 +740,6 @@ def return_delete(request, pk):
     vendor_name = ret.vendor.name
     ret.delete()
     return redirect('vendor_summary', name=vendor_name)
+
+def sidebar_test(request):
+    return render(request, 'core/sidebar_test.html')

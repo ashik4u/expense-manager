@@ -34,4 +34,5 @@ urlpatterns = [
     path('select2/', include('django_select2.urls')),
     path('api/vendor-balance/', vendor_balance),
     path('accounts/', include('django.contrib.auth.urls')),  # Add this line
+    path('sidebar-test/', views.sidebar_test, name='sidebar_test'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

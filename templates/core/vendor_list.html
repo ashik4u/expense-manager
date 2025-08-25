@@ -1,76 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2 align-items-center">
-                    <div class="col-sm-6 d-flex align-items-center">
-                        <i class="fas fa-users fa-2x text-info mr-2"></i>
-                        <div>
-                            <h1 class="m-0">Vendors <small class="text-muted" style="font-size:1rem;">All registered vendors</small></h1>
-                        </div>
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2 align-items-center">
+                <div class="col-sm-6 d-flex align-items-center">
+                    <i class="fas fa-users fa-2x text-info mr-2"></i>
+                    <div>
+                        <h1 class="m-0">Vendors <small class="text-muted" style="font-size:1rem;">All registered vendors</small></h1>
                     </div>
                 </div>
             </div>
         </div>
-        <section class="content">
-            <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="mb-0">Vendor List</h2>
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-plus"></i> Add Vendor</button>
-                </div>
-                <div class="row">
-<!-- Add Vendor Modal -->
-<div class="modal fade" id="addVendorModal" tabindex="-1" role="dialog" aria-labelledby="addVendorModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title" id="addVendorModalLabel">Add Vendor</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form method="post" action="{% url 'vendor_add' %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="vendorName">Name</label>
-                        <input type="text" class="form-control" id="vendorName" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="vendorContact">Contact</label>
-                        <input type="text" class="form-control" id="vendorContact" name="contact">
-                    </div>
-                    <div class="form-group">
-                        <label for="vendorOpeningBalance">Opening Balance</label>
-                        <input type="number" step="0.01" class="form-control" id="vendorOpeningBalance" name="opening_balance" value="0" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Save</button>
-                </div>
-            </form>
-        </div>
     </div>
-</div>
-                    {% for vendor in vendors %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="small-box {% cycle 'bg-info' 'bg-success' 'bg-warning' 'bg-danger' 'bg-primary' 'bg-secondary' %}">
-                            <div class="inner">
-                                <h3>{{ vendor.balance }}</h3>
-                                <p>{{ vendor.name }}</p>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Vendor List</h2>
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addVendorModal"><i class="fas fa-plus"></i> Add Vendor</button>
+            </div>
+            <div class="row">
+                <!-- Add Vendor Modal -->
+                <div class="modal fade" id="addVendorModal" tabindex="-1" role="dialog" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success">
+                                <h5 class="modal-title" id="addVendorModalLabel">Add Vendor</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                            <form method="post" action="{% url 'vendor_add' %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="vendorName">Name</label>
+                                        <input type="text" class="form-control" id="vendorName" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vendorContact">Contact</label>
+                                        <input type="text" class="form-control" id="vendorContact" name="contact">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vendorOpeningBalance">Opening Balance</label>
+                                        <input type="number" step="0.01" class="form-control" id="vendorOpeningBalance" name="opening_balance" value="0" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
+                {% for vendor in vendors %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="small-box {% cycle 'bg-info' 'bg-success' 'bg-warning' 'bg-danger' 'bg-primary' 'bg-secondary' %}">
+                        <div class="inner">
+                            <h3>{{ vendor.balance }}</h3>
+                            <p>{{ vendor.name }}</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-        </section>
-    </div>
-</div>
+        </div>
+    </section>
 {% endblock %}

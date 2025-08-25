@@ -1,97 +1,93 @@
 {% extends 'base.html' %}
 {% block content %}
-    <!-- Content Wrapper -->
-    <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Dashboard</h1>
-                    </div>
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Dashboard</h1>
                 </div>
             </div>
         </div>
-        <section class="content">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3>{{ vendor_count }}</h3>
-                                <p>Vendors</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-users"></i></div>
+    </div>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ vendor_count }}</h3>
+                            <p>Vendors</p>
                         </div>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3>{{ product_count }}</h3>
-                                <p>Products</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-box"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-warning">
-                            <div class="inner">
-                                <h3>{{ expense_count }}</h3>
-                                <p>Expenses</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-danger">
-                            <div class="inner">
-                                <h3>{{ payment_count }}</h3>
-                                <p>Payments</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-money-check-alt"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-secondary">
-                            <div class="inner">
-                                <h3>{{ return_count }}</h3>
-                                <p>Returns</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-undo"></i></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-6">
-                        <div class="small-box bg-primary">
-                            <div class="inner">
-                                <h3>{{ adjustment_count }}</h3>
-                                <p>Adjustments</p>
-                            </div>
-                            <div class="icon"><i class="fas fa-adjust"></i></div>
-                        </div>
+                        <div class="icon"><i class="fas fa-users"></i></div>
                     </div>
                 </div>
-                <div class="card mt-4">
-                    <div class="card-header"><h3 class="card-title">Vendor Balances</h3></div>
-                    <div class="card-body">
-                        <div class="row">
-                    {% for vendor in vendors %}
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                        <div class="small-box {% cycle 'bg-info' 'bg-success' 'bg-warning' 'bg-danger' 'bg-primary' 'bg-secondary' %}">
-                            <div class="inner">
-                                <h3>{{ vendor.balance }}</h3>
-                                <p>{{ vendor.name }}</p>
-                            </div>
-                            <div class="icon">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ product_count }}</h3>
+                            <p>Products</p>
                         </div>
+                        <div class="icon"><i class="fas fa-box"></i></div>
                     </div>
-                    {% endfor %}
                 </div>
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ expense_count }}</h3>
+                            <p>Expenses</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>{{ payment_count }}</h3>
+                            <p>Payments</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-money-check-alt"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-secondary">
+                        <div class="inner">
+                            <h3>{{ return_count }}</h3>
+                            <p>Returns</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-undo"></i></div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ adjustment_count }}</h3>
+                            <p>Adjustments</p>
+                        </div>
+                        <div class="icon"><i class="fas fa-adjust"></i></div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
-</div>
+            <div class="card mt-4">
+                <div class="card-header"><h3 class="card-title">Vendor Balances</h3></div>
+                <div class="card-body">
+                    <div class="row">
+                {% for vendor in vendors %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="small-box {% cycle 'bg-info' 'bg-success' 'bg-warning' 'bg-danger' 'bg-primary' 'bg-secondary' %}">
+                        <div class="inner">
+                            <h3>{{ vendor.balance }}</h3>
+                            <p>{{ vendor.name }}</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <a href="{% url 'vendor_summary' vendor.name %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
