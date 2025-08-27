@@ -1,0 +1,15 @@
+---
+deployment:
+  tasks:
+    # Activate your Python virtual environment (update path if needed)
+    - source /home/$USER/virtualenv/$APPNAME/3.11/bin/activate
+    # Install dependencies
+    - pip install -r requirements.txt
+    # Set Django settings module (update if your settings file is not expense_manager/settings.py)
+    - export DJANGO_SETTINGS_MODULE=expense_manager.settings
+    # Run migrations
+    - python manage.py migrate
+    # Collect static files
+    - python manage.py collectstatic --noinput
+    # (Optional) Restart the Python app if needed
+    # - touch passenger_wsgi.py
