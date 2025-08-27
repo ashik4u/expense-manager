@@ -2,7 +2,9 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def payment_add(request):
 	from .models import Payment, Vendor
 	if request.method != 'POST':
@@ -70,6 +72,7 @@ def payment_add(request):
 		else:
 			return render(request, 'core/payment_list.html', context)
 
+@login_required
 @require_POST
 def payment_edit(request, pk):
 	from .models import Payment, Vendor
@@ -108,6 +111,7 @@ def payment_edit(request, pk):
 	# Redirect to vendor summary after edit
 	return redirect('vendor_summary', name=payment.vendor.name)
 
+@login_required
 @require_POST
 def payment_delete(request, pk):
 	from .models import Payment
@@ -119,6 +123,7 @@ def payment_delete(request, pk):
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 
+@login_required
 @require_POST
 def product_add(request):
 	from .models import Product, Vendor
@@ -130,6 +135,7 @@ def product_add(request):
 		Product.objects.create(name=name, vendor=vendor, price=price)
 	return redirect('product_list')
 
+@login_required
 @require_POST
 def product_edit(request, pk):
 	from .models import Product, Vendor
@@ -151,6 +157,7 @@ def product_edit(request, pk):
 		return JsonResponse({'success': False, 'error': 'Missing fields'})
 	return redirect('product_list')
 
+@login_required
 @require_POST
 def product_delete(request, pk):
     from .models import Product
@@ -162,6 +169,7 @@ def product_delete(request, pk):
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 
+@login_required
 @require_POST
 def expense_delete(request, pk):
 	from .models import Expense
@@ -170,6 +178,7 @@ def expense_delete(request, pk):
 	expense.delete()
 	return redirect('vendor_summary', name=vendor_name)
 from django.shortcuts import redirect
+@login_required
 def expense_edit(request, pk):
 	from .models import Expense, ExpenseProduct, Product, Vendor
 	expense = get_object_or_404(Expense, pk=pk)
@@ -225,6 +234,7 @@ def expense_edit(request, pk):
 		'errors': errors,
 	})
 from django.shortcuts import get_object_or_404
+@login_required
 def expense_detail(request, pk):
 	from .models import Expense, Vendor, Product
 	expense = get_object_or_404(Expense, pk=pk)
@@ -245,6 +255,7 @@ def expense_detail(request, pk):
 		'products': products,
 		'expense_products': expense_products
 	})
+@login_required
 def vendor_summary(request, name):
 	from .models import Vendor, Expense, Payment, Return, Adjustment, Product
 	vendor = Vendor.objects.filter(name=name).first()
@@ -352,6 +363,7 @@ def vendor_summary(request, name):
 		'products': products,
 	}
 	return render(request, 'core/vendor_summary.html', context)
+@login_required
 def vendor_add(request):
 	from .models import Vendor
 	context = {}
@@ -387,6 +399,7 @@ from rest_framework.response import Response
 from django.db.models import Sum
 from .models import Vendor
 
+@login_required
 @api_view(['GET'])
 def vendor_balance(request):
 	total = Vendor.objects.aggregate(total=Sum('opening_balance'))['total'] or 0
@@ -396,6 +409,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required
 @login_required
 def dashboard(request):
 	from .models import Vendor, Product, Expense, Payment, Return, Adjustment
@@ -430,6 +444,7 @@ def dashboard(request):
 	}
 	return render(request, 'core/dashboard.html', context)
 
+@login_required
 def vendor_list(request):
 		from .models import Vendor
 		from django.db import models
@@ -457,6 +472,7 @@ def vendor_list(request):
 		}
 		return render(request, 'core/vendor_list.html', context)
 
+@login_required
 def product_list(request):
 	from .models import Product, Vendor
 	products = Product.objects.select_related('vendor').all().order_by('-id')
@@ -467,6 +483,7 @@ def product_list(request):
 		'active_menu': 'products',
 	})
 
+@login_required
 def expense_list(request):
 	from .models import Expense, Vendor, Product
 	expenses = Expense.objects.select_related('vendor').all().order_by('-date')
@@ -479,6 +496,7 @@ def expense_list(request):
 		'active_menu': 'expenses',
 	})
 
+@login_required
 def expense_add(request):
 	from .models import Expense, ExpenseProduct, Product, Vendor
 	errors = []
@@ -536,9 +554,11 @@ def expense_add(request):
 		'errors': errors,
 	})
 
+@login_required
 def payment_add(request):
 	return render(request, 'core/payment_add.html', context)
 
+@login_required
 def return_add(request):
 	from .models import Return, Vendor, Product
 	errors = []
@@ -577,6 +597,7 @@ def return_add(request):
 	context = {'vendors': vendors, 'products': products}
 	return render(request, 'core/return_list.html', context)
 
+@login_required
 def adjustment_add(request):
 	from .models import Adjustment, Vendor
 	from django.shortcuts import redirect
@@ -599,6 +620,7 @@ def adjustment_add(request):
 		return redirect('adjustment_list')
 	return render(request, 'core/adjustment_add.html', {'vendors': vendors})
 
+@login_required
 def payment_list(request):
 	from .models import Payment, Vendor
 	payments = Payment.objects.select_related('vendor').all().order_by('-date')
@@ -609,6 +631,7 @@ def payment_list(request):
 		'active_menu': 'payments',
 	})
 
+@login_required
 def return_list(request):
 	from .models import Return, Vendor, Product
 	returns = Return.objects.select_related('vendor').all().order_by('-date')
@@ -622,6 +645,7 @@ def return_list(request):
 		'active_menu': 'returns',
 	})
 
+@login_required
 def adjustment_list(request):
 	from .models import Vendor
 	import datetime
@@ -631,11 +655,13 @@ def adjustment_list(request):
 from django.http import JsonResponse
 from .models import Product
 
+@login_required
 def ajax_products_by_vendor(request, vendor_id):
     products = Product.objects.filter(vendor_id=vendor_id)
     products_list = list(products.values('id', 'name', 'price'))
     return JsonResponse({'products': products_list})
 
+@login_required
 def vendor_summary(request, name):
 	from .models import Vendor, Expense, Payment, Return, Adjustment, Product
 	vendor = Vendor.objects.filter(name=name).first()
@@ -746,6 +772,7 @@ def vendor_summary(request, name):
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect, get_object_or_404
 
+@login_required
 @require_POST
 def return_edit(request, pk):
     from .models import Return, Vendor, Product
@@ -785,6 +812,7 @@ def return_edit(request, pk):
     ret.save()
     return redirect('vendor_summary', name=ret.vendor.name)
 
+@login_required
 @require_POST
 def return_delete(request, pk):
     from .models import Return
@@ -793,5 +821,6 @@ def return_delete(request, pk):
     ret.delete()
     return redirect('vendor_summary', name=vendor_name)
 
+@login_required
 def sidebar_test(request):
     return render(request, 'core/sidebar_test.html')
