@@ -378,7 +378,33 @@
                                         {% for expense in expenses %}
                                             {% for ep in expense.expense_products.all %}
                                             <tr>
-                                                <td><a href="{% url 'expense_detail' expense.id %}" class="text-info">{{ expense.date|date:'d-M-y' }}</a></td>
+                                                <td>
+                                                    <a href="#" class="text-info" data-toggle="modal" data-target="#viewExpenseModal{{ expense.id }}">{{ expense.date|date:'d-M-y' }}</a>
+                                                    <!-- Expense Modal -->
+                                                    <div class="modal fade" id="viewExpenseModal{{ expense.id }}" tabindex="-1" role="dialog" aria-labelledby="viewExpenseModalLabel{{ expense.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-info">
+                                                                    <h5 class="modal-title" id="viewExpenseModalLabel{{ expense.id }}">Expense Details</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p><strong>Date:</strong> {{ expense.date|date:'d-M-y' }}</p>
+                                                                    <p><strong>Amount:</strong> {{ expense.amount }}</p>
+                                                                    <p><strong>Delivery Charge:</strong> {{ expense.delivery_charge }}</p>
+                                                                    <p><strong>Products:</strong></p>
+                                                                    <ul>
+                                                                        {% for ep in expense.expense_products.all %}
+                                                                            <li>{{ ep.product.name }} x {{ ep.quantity }}</li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>Expense</td>
                                                 <td>{{ ep.product.name }} x {{ ep.quantity }}</td>
                                                 <td>{{ expense.amount }}</td>
@@ -387,7 +413,27 @@
                                         {% endfor %}
                                         {% for payment in payments %}
                                             <tr>
-                                                <td><a href="{% url 'payment_detail' payment.id %}" class="text-info">{{ payment.date|date:'d-M-y' }}</a></td>
+                                                <td>
+                                                    <a href="#" class="text-info" data-toggle="modal" data-target="#viewPaymentModal{{ payment.id }}">{{ payment.date|date:'d-M-y' }}</a>
+                                                    <!-- Payment Modal -->
+                                                    <div class="modal fade" id="viewPaymentModal{{ payment.id }}" tabindex="-1" role="dialog" aria-labelledby="viewPaymentModalLabel{{ payment.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-success">
+                                                                    <h5 class="modal-title" id="viewPaymentModalLabel{{ payment.id }}">Payment Details</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p><strong>Date:</strong> {{ payment.date|date:'d-M-y' }}</p>
+                                                                    <p><strong>Amount:</strong> {{ payment.amount }}</p>
+                                                                    <p><strong>Method:</strong> {{ payment.method }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>Payment</td>
                                                 <td>{{ payment.method }}</td>
                                                 <td>{{ payment.amount }}</td>
@@ -395,7 +441,28 @@
                                         {% endfor %}
                                         {% for ret in returns %}
                                             <tr>
-                                                <td><a href="{% url 'return_detail' ret.id %}" class="text-info">{{ ret.date|date:'d-M-y' }}</a></td>
+                                                <td>
+                                                    <a href="#" class="text-info" data-toggle="modal" data-target="#viewReturnModal{{ ret.id }}">{{ ret.date|date:'d-M-y' }}</a>
+                                                    <!-- Return Modal -->
+                                                    <div class="modal fade" id="viewReturnModal{{ ret.id }}" tabindex="-1" role="dialog" aria-labelledby="viewReturnModalLabel{{ ret.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-warning">
+                                                                    <h5 class="modal-title" id="viewReturnModalLabel{{ ret.id }}">Return Details</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p><strong>Date:</strong> {{ ret.date|date:'d-M-y' }}</p>
+                                                                    <p><strong>Product:</strong> {{ ret.product.name }}</p>
+                                                                    <p><strong>Quantity:</strong> {{ ret.quantity }}</p>
+                                                                    <p><strong>Amount:</strong> {{ ret.amount }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>Return</td>
                                                 <td>{{ ret.product.name }} x {{ ret.quantity }}</td>
                                                 <td>{{ ret.amount }}</td>
@@ -403,7 +470,27 @@
                                         {% endfor %}
                                         {% for adj in adjustments %}
                                             <tr>
-                                                <td><a href="{% url 'adjustment_detail' adj.id %}" class="text-info">{{ adj.date|date:'d-M-y' }}</a></td>
+                                                <td>
+                                                    <a href="#" class="text-info" data-toggle="modal" data-target="#viewAdjustmentModal{{ adj.id }}">{{ adj.date|date:'d-M-y' }}</a>
+                                                    <!-- Adjustment Modal -->
+                                                    <div class="modal fade" id="viewAdjustmentModal{{ adj.id }}" tabindex="-1" role="dialog" aria-labelledby="viewAdjustmentModalLabel{{ adj.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header bg-secondary">
+                                                                    <h5 class="modal-title" id="viewAdjustmentModalLabel{{ adj.id }}">Adjustment Details</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p><strong>Date:</strong> {{ adj.date|date:'d-M-y' }}</p>
+                                                                    <p><strong>Amount:</strong> {{ adj.amount }}</p>
+                                                                    <p><strong>Note:</strong> {{ adj.note|default:'-' }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>Adjustment</td>
                                                 <td>{{ adj.note|default:'-' }}</td>
                                                 <td>{{ adj.amount }}</td>
