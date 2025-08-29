@@ -665,8 +665,10 @@ def ajax_products_by_vendor(request, vendor_id):
 
 @login_required
 def vendor_summary(request, name):
+	import urllib.parse
 	from .models import Vendor, Expense, Payment, Return, Adjustment, Product
-	vendor = Vendor.objects.filter(name=name).first()
+	vendor_name = urllib.parse.unquote(name)
+	vendor = Vendor.objects.filter(name__iexact=vendor_name).first()
 	if not vendor:
 		from django.http import Http404
 		raise Http404('Vendor not found')
