@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css">
     <meta charset="UTF-8">
     <title>{{ vendor.name }} - Transaction Summary</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -187,11 +189,48 @@
                                             <tbody>
                                                 {% for adj in adjustments %}
                                                 <tr>
-                                                    <td>{{ adj.date|date:'d-M-y' }}</td>
+                                                    <td>
+                                                        <a href="#" class="text-info" data-toggle="modal" data-target="#editAdjustmentModal{{ adj.id }}">{{ adj.date|date:'d-M-y' }}</a>
+                                                    </td>
                                                     <td>{{ adj.vendor.name }}</td>
                                                     <td>{{ adj.amount }}</td>
                                                     <td>{{ adj.note }}</td>
                                                 </tr>
+                                                <!-- Edit Adjustment Modal -->
+                                                <div class="modal fade" id="editAdjustmentModal{{ adj.id }}" tabindex="-1" role="dialog" aria-labelledby="editAdjustmentModalLabel{{ adj.id }}" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header bg-secondary">
+                                                                <h5 class="modal-title" id="editAdjustmentModalLabel{{ adj.id }}">Edit Adjustment</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <form method="post" action="{% url 'adjustment_edit' adj.id %}">
+                                                                    {% csrf_token %}
+                                                                    <input type="hidden" name="vendor" value="{{ vendor.id }}">
+                                                                    <div class="form-group">
+                                                                        <label for="editAdjustmentDate{{ adj.id }}">Date</label>
+                                                                        <input type="date" class="form-control" id="editAdjustmentDate{{ adj.id }}" name="date" value="{{ adj.date|date:'Y-m-d' }}" required>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="editAdjustmentAmount{{ adj.id }}">Amount</label>
+                                                                        <input type="number" step="0.01" class="form-control" id="editAdjustmentAmount{{ adj.id }}" name="amount" value="{{ adj.amount }}" required>
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <label for="editAdjustmentNote{{ adj.id }}">Note</label>
+                                                                        <input type="text" class="form-control" id="editAdjustmentNote{{ adj.id }}" name="note" value="{{ adj.note }}">
+                                                                    </div>
+                                                                    <div class="d-flex align-items-center justify-content-between">
+                                                                        <button type="submit" class="btn btn-warning"><i class="fas fa-save"></i> Save Changes</button>
+                                                                        <button type="submit" class="btn btn-danger" name="delete" value="1" onclick="return confirm('Are you sure you want to delete this adjustment?');"><i class="fas fa-trash"></i> Delete</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 {% empty %}
                                                 <tr><td colspan="4" class="text-center text-muted">No adjustments found.</td></tr>
                                                 {% endfor %}
@@ -254,7 +293,23 @@
                                     <tbody>
                                         {% for expense in expenses %}
                                         <tr>
-                                            <td><a href="{% url 'expense_detail' expense.id %}" class="text-info">{{ expense.date|date:'d-M-y' }}</a></td>
+                                            <td><a href="#" class="text-info expense-detail-link" data-id="{{ expense.id }}" data-url="{% url 'expense_detail' expense.id %}">{{ expense.date|date:'d-M-y' }}</a></td>
+                                <!-- Expense Detail Modal -->
+                                <div class="modal fade" id="expenseDetailModal" tabindex="-1" role="dialog" aria-labelledby="expenseDetailModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-info">
+                                                <h5 class="modal-title" id="expenseDetailModalLabel">Expense Details</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body" id="expenseDetailModalBody">
+                                                <div class="text-center text-muted">Loading...</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                             <td>{{ expense.amount|floatformat:2 }}</td>
                                             <td>{{ expense.delivery_charge|floatformat:2 }}</td>
                                             <td>
@@ -365,7 +420,22 @@
                                 {% endfor %}
                             </div>
                             <div class="tab-pane fade show active" id="all" role="tabpanel">
-                                <table id="allTxTable" class="table table-bordered table-striped">
+                                <table id="allTxTable" class="table table-bordered table-hover">
+    <!-- DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+    $(function () {
+        $('#allTxTable').DataTable({
+            paging: true,
+            searching: false,
+            info: false,
+            ordering: true,
+            pageLength: 50
+        });
+    });
+    </script>
                                     <thead>
                                         <tr>
                                             <th>Date</th>
@@ -567,16 +637,36 @@
                                             <td>{{ payment.method }}</td>
                                             <td>{{ payment.amount }}</td>
                                             <td>
-                                                {% if payment.memo %}
-                                                    <a href="{{ payment.memo.url }}" target="_blank" class="btn btn-xs btn-info" title="View Memo"><i class="fas fa-file"></i></a>
-                                                {% endif %}
-                                                <!-- Edit button removed; edit modal now triggered by clicking the date -->
-                                                <form method="post" action="{% url 'payment_delete' payment.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this payment?');">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-danger btn-xs" title="Delete"><i class="fas fa-trash"></i></button>
-                                                </form>
+                                                    {% if payment.memo %}
+                                                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#viewPaymentMemoModal{{ payment.id }}" title="View Memo">
+                                                            <i class="fas fa-file"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                    <!-- Edit button removed; edit modal now triggered by clicking the date -->
+                                                    <form method="post" action="{% url 'payment_delete' payment.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this payment?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger btn-xs" title="Delete"><i class="fas fa-trash"></i></button>
+                                                    </form>
                                             </td>
                                         </tr>
+                                            {% if payment.memo %}
+                                            <!-- Payment Memo Modal -->
+                                            <div class="modal fade" id="viewPaymentMemoModal{{ payment.id }}" tabindex="-1" role="dialog" aria-labelledby="viewPaymentMemoModalLabel{{ payment.id }}" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-info">
+                                                            <h5 class="modal-title" id="viewPaymentMemoModalLabel{{ payment.id }}">Payment Memo</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body text-center">
+                                                            <img src="{{ payment.memo.url }}" alt="Payment Memo" class="img-fluid" style="max-height:500px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
                                         <!-- Edit Payment Modal -->
                                         <div class="modal fade" id="editPaymentModal{{ payment.id }}" tabindex="-1" role="dialog" aria-labelledby="editPaymentModalLabel{{ payment.id }}" aria-hidden="true">
                                             <div class="modal-dialog" role="document">
@@ -717,24 +807,17 @@
                                             <th>Product</th>
                                             <th>Quantity</th>
                                             <th>Amount</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for ret in returns %}
                                         <tr>
-                                            <td>{{ ret.date|date:'d-M-y' }}</td>
+                                            <td>
+                                                <a href="#" class="text-info" data-toggle="modal" data-target="#editReturnModal{{ ret.id }}">{{ ret.date|date:'d-M-y' }}</a>
+                                            </td>
                                             <td>{{ ret.product.name }}</td>
                                             <td>{{ ret.quantity }}</td>
                                             <td>{{ ret.amount }}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editReturnModal{{ ret.id }}">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteReturnModal{{ ret.id }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -809,8 +892,13 @@
                                                         <label for="editReturnQuantity{{ ret.id }}">Quantity</label>
                                                         <input type="number" min="1" class="form-control" id="editReturnQuantity{{ ret.id }}" name="quantity" value="{{ ret.quantity }}" required>
                                                     </div>
-                                                    <div class="d-flex align-items-center">
-                                                        <button type="submit" class="btn btn-warning mr-2"><i class="fas fa-save"></i> Save Changes</button>
+                                                    <div class="form-group">
+                                                        <label for="editReturnAmount{{ ret.id }}">Amount</label>
+                                                        <input type="number" step="0.01" class="form-control" id="editReturnAmount{{ ret.id }}" name="amount" value="{{ ret.amount }}" required>
+                                                    </div>
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <button type="submit" class="btn btn-warning"><i class="fas fa-save"></i> Save Changes</button>
+                                                        <button type="submit" class="btn btn-danger" name="delete" value="1" onclick="return confirm('Are you sure you want to delete this return?');"><i class="fas fa-trash"></i> Delete</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -818,28 +906,7 @@
                                     </div>
                                 </div>
                                 <!-- Delete Return Modal -->
-                                <div class="modal fade" id="deleteReturnModal{{ ret.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteReturnModalLabel{{ ret.id }}" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger">
-                                                <h5 class="modal-title" id="deleteReturnModalLabel{{ ret.id }}">Delete Return</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <form method="post" action="{% url 'return_delete' ret.id %}">
-                                                    {% csrf_token %}
-                                                    <p>Are you sure you want to delete this return?</p>
-                                                    <div class="d-flex align-items-center">
-                                                        <button type="submit" class="btn btn-danger mr-2"><i class="fas fa-trash"></i> Delete</button>
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Delete Return Modal removed: handled in edit modal -->
                                 {% endfor %}
                             </div>
                         </div>
@@ -1003,6 +1070,17 @@ $(function () {
         $(this).find('#memoModalBody').html('<div class="text-center text-muted">Loading...</div>');
     });
 });
+    $(document).on('click', '.expense-detail-link', function(e) {
+        e.preventDefault();
+        var url = $(this).data('url');
+        $('#expenseDetailModalBody').html('<div class="text-center text-muted">Loading...</div>');
+        $('#expenseDetailModal').modal('show');
+        $.get(url, function(data) {
+            // Extract only the modal content if needed
+            var modalContent = $(data).find('.container').html() || data;
+            $('#expenseDetailModalBody').html(modalContent);
+        });
+    });
 </script>
 </body>
 <!-- DataTables JS & CSS -->

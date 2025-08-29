@@ -249,12 +249,16 @@ def expense_detail(request, pk):
 			'price': ep.product.price,
 			'subtotal': subtotal
 		})
-	return render(request, 'core/expense_detail.html', {
+	context = {
 		'expense': expense,
 		'vendors': vendors,
 		'products': products,
 		'expense_products': expense_products
-	})
+	}
+	if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+		return render(request, 'core/expense_detail_modal.html', context)
+	else:
+		return render(request, 'core/expense_detail.html', context)
 
 # Payment Detail View
 @login_required
@@ -285,6 +289,48 @@ def return_detail(request, pk):
 def adjustment_detail(request, pk):
 	from .models import Adjustment, Vendor
 	adj = get_object_or_404(Adjustment, pk=pk)
+	vendors = Vendor.objects.all()
+	return render(request, 'core/adjustment_detail.html', {
+		'adjustment': adj,
+		'vendors': vendors,
+	})
+
+# Adjustment Edit View (for modal)
+from django.views.decorators.http import require_POST
+@login_required
+def adjustment_edit(request, pk):
+	from .models import Adjustment, Vendor
+	adj = get_object_or_404(Adjustment, pk=pk)
+	if request.method == 'POST':
+		if 'delete' in request.POST:
+			vendor_name = adj.vendor.name
+			adj.delete()
+			return redirect('vendor_summary', name=vendor_name)
+		vendor_id = request.POST.get('vendor')
+		date = request.POST.get('date')
+		amount = request.POST.get('amount')
+		note = request.POST.get('note')
+		errors = []
+		if not vendor_id:
+			errors.append('Vendor is required.')
+		if not date:
+			errors.append('Date is required.')
+		if not amount:
+			errors.append('Amount is required.')
+		if errors:
+			vendors = Vendor.objects.all()
+			return render(request, 'core/vendor_summary.html', {
+				'edit_errors': errors,
+				'edit_adjustment': adj,
+				'vendors': vendors,
+			})
+		vendor = get_object_or_404(Vendor, pk=vendor_id)
+		adj.vendor = vendor
+		adj.date = date
+		adj.amount = amount
+		adj.note = note
+		adj.save()
+		return redirect('vendor_summary', name=adj.vendor.name)
 	vendors = Vendor.objects.all()
 	return render(request, 'core/adjustment_detail.html', {
 		'adjustment': adj,
@@ -814,42 +860,46 @@ from django.shortcuts import redirect, get_object_or_404
 @login_required
 @require_POST
 def return_edit(request, pk):
-    from .models import Return, Vendor, Product
-    ret = get_object_or_404(Return, pk=pk)
-    vendor_id = request.POST.get('vendor')
-    date = request.POST.get('date')
-    product_id = request.POST.get('product')
-    quantity = request.POST.get('quantity')
-    errors = []
-    if not vendor_id:
-        errors.append('Vendor is required.')
-    if not date:
-        errors.append('Date is required.')
-    if not product_id:
-        errors.append('Product is required.')
-    if not quantity:
-        errors.append('Quantity is required.')
-    if errors:
-        vendor_obj = None
-        if vendor_id:
-            try:
-                vendor_obj = Vendor.objects.get(pk=vendor_id)
-            except Vendor.DoesNotExist:
-                vendor_obj = None
-        products = Product.objects.all()
-        context = {
-            'vendor': vendor_obj,
-            'vendors': Vendor.objects.all(),
-            'products': products,
-            'add_errors': errors,
-        }
-        return render(request, 'core/vendor_summary.html', context)
-    ret.vendor = Vendor.objects.get(pk=vendor_id)
-    ret.date = date
-    ret.product = Product.objects.get(pk=product_id)
-    ret.quantity = int(quantity)
-    ret.save()
-    return redirect('vendor_summary', name=ret.vendor.name)
+	from .models import Return, Vendor, Product
+	ret = get_object_or_404(Return, pk=pk)
+	if request.method == 'POST' and request.POST.get('delete'):
+		vendor_name = ret.vendor.name
+		ret.delete()
+		return redirect('vendor_summary', name=vendor_name)
+	vendor_id = request.POST.get('vendor')
+	date = request.POST.get('date')
+	product_id = request.POST.get('product')
+	quantity = request.POST.get('quantity')
+	errors = []
+	if not vendor_id:
+		errors.append('Vendor is required.')
+	if not date:
+		errors.append('Date is required.')
+	if not product_id:
+		errors.append('Product is required.')
+	if not quantity:
+		errors.append('Quantity is required.')
+	if errors:
+		vendor_obj = None
+		if vendor_id:
+			try:
+				vendor_obj = Vendor.objects.get(pk=vendor_id)
+			except Vendor.DoesNotExist:
+				vendor_obj = None
+		products = Product.objects.all()
+		context = {
+			'vendor': vendor_obj,
+			'vendors': Vendor.objects.all(),
+			'products': products,
+			'add_errors': errors,
+		}
+		return render(request, 'core/vendor_summary.html', context)
+	ret.vendor = Vendor.objects.get(pk=vendor_id)
+	ret.date = date
+	ret.product = Product.objects.get(pk=product_id)
+	ret.quantity = int(quantity)
+	ret.save()
+	return redirect('vendor_summary', name=ret.vendor.name)
 
 @login_required
 @require_POST
