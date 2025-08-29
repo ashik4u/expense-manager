@@ -382,30 +382,23 @@
                                                 <td>Expense</td>
                                                 <td>{{ ep.product.name }} x {{ ep.quantity }}</td>
                                                 <td>{{ expense.amount }}</td>
-                                                <td>
-                                                    {% if expense.memo %}
-                                                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#memoModal" data-url="{{ expense.memo.url }}">
-                                                            <i class="fas fa-file"></i>
-                                                        </button>
-                                                    {% else %}
-                                                        <span class="text-muted">-</span>
-                                                    {% endif %}
-                                                </td>
-                                                <!-- Memo column removed -->
+                                            </tr>
+                                            {% endfor %}
+                                        {% endfor %}
+                                        {% for payment in payments %}
+                                            <tr>
+                                                <td>{{ payment.date|date:'d-M-y' }}</td>
                                                 <td>Payment</td>
                                                 <td>{{ payment.method }}</td>
                                                 <td>{{ payment.amount }}</td>
-                                                <!-- Memo column removed -->
                                             </tr>
                                         {% endfor %}
-                                    {% endfor %}
                                         {% for ret in returns %}
                                             <tr>
                                                 <td>{{ ret.date|date:'d-M-y' }}</td>
                                                 <td>Return</td>
                                                 <td>{{ ret.product.name }} x {{ ret.quantity }}</td>
                                                 <td>{{ ret.amount }}</td>
-                                                <!-- Memo column removed -->
                                             </tr>
                                         {% endfor %}
                                         {% for adj in adjustments %}
@@ -414,7 +407,6 @@
                                                 <td>Adjustment</td>
                                                 <td>{{ adj.note|default:'-' }}</td>
                                                 <td>{{ adj.amount }}</td>
-                                                <td>-</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
