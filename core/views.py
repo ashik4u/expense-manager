@@ -255,6 +255,41 @@ def expense_detail(request, pk):
 		'products': products,
 		'expense_products': expense_products
 	})
+
+# Payment Detail View
+@login_required
+def payment_detail(request, pk):
+	from .models import Payment, Vendor
+	payment = get_object_or_404(Payment, pk=pk)
+	vendors = Vendor.objects.all()
+	return render(request, 'core/payment_detail.html', {
+		'payment': payment,
+		'vendors': vendors,
+	})
+
+# Return Detail View
+@login_required
+def return_detail(request, pk):
+	from .models import Return, Vendor, Product
+	ret = get_object_or_404(Return, pk=pk)
+	vendors = Vendor.objects.all()
+	products = Product.objects.all()
+	return render(request, 'core/return_detail.html', {
+		'return': ret,
+		'vendors': vendors,
+		'products': products,
+	})
+
+# Adjustment Detail View
+@login_required
+def adjustment_detail(request, pk):
+	from .models import Adjustment, Vendor
+	adj = get_object_or_404(Adjustment, pk=pk)
+	vendors = Vendor.objects.all()
+	return render(request, 'core/adjustment_detail.html', {
+		'adjustment': adj,
+		'vendors': vendors,
+	})
 @login_required
 def vendor_summary(request, name):
 	import urllib.parse

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Adjustment Detail</h2>
+  <table class="table table-bordered">
+    <tr><th>Date</th><td>{{ adjustment.date|date:'d-M-y' }}</td></tr>
+    <tr><th>Vendor</th><td>{{ adjustment.vendor.name }}</td></tr>
+    <tr><th>Amount</th><td>{{ adjustment.amount }}</td></tr>
+    <tr><th>Note</th><td>{{ adjustment.note|default:'-' }}</td></tr>
+  </table>
+</div>
+{% endblock %}

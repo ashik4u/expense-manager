@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Payment Detail</h2>
+  <table class="table table-bordered">
+    <tr><th>Date</th><td>{{ payment.date|date:'d-M-y' }}</td></tr>
+    <tr><th>Vendor</th><td>{{ payment.vendor.name }}</td></tr>
+    <tr><th>Method</th><td>{{ payment.method }}</td></tr>
+    <tr><th>Amount</th><td>{{ payment.amount }}</td></tr>
+    <tr><th>Memo</th><td>{% if payment.memo %}<a href="{{ payment.memo.url }}" target="_blank">View Memo</a>{% else %}-{% endif %}</td></tr>
+  </table>
+</div>
+{% endblock %}
