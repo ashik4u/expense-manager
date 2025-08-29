@@ -378,7 +378,6 @@
                                             <th>Type</th>
                                             <th>Details</th>
                                             <th>Amount</th>
-                                            <th>Memo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -389,15 +388,7 @@
                                                 <td>Expense</td>
                                                 <td>{{ ep.product.name }} x {{ ep.quantity }}</td>
                                                 <td>{{ expense.amount }}</td>
-                                                <td>
-                                                    {% if expense.memo %}
-                                                        <button type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#memoModal" data-url="{{ expense.memo.url }}">
-                                                            <i class="fas fa-file"></i>
-                                                        </button>
-                                                    {% else %}
-                                                        <span class="text-muted">-</span>
-                                                    {% endif %}
-                                                </td>
+                                                <!-- Memo column removed -->
                                             </tr>
                                             {% endfor %}
                                         {% endfor %}
